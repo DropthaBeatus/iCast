@@ -15,11 +15,12 @@ public class tBot {
 
     private static final Map<String, Command> commands = new HashMap<>();
     private static final Logger log = Loggers.getLogger(tBot.class);
-    private static final String token = "NzUwMTU1MzA3Njk0Njg2MzE5.X02akg.HMQqF90TeEgbMg-E8dp_BbaF_TE";
+
 
 
 
     public static void main(String args[]){
+        final String token = args[0];
         Checkers game = new Checkers();
         BasicConfigurator.configure();
 

@@ -13,6 +13,7 @@ public class Checkers extends Board{
 
     private static String white_block = ":white_large_square:";
     private static String black_block = ":black_large_square:";
+    private boolean blnStarted = false;
 
    // private static int numBlackPiece = 0;
    // private static int numRedPiece = 0;
@@ -23,7 +24,6 @@ public class Checkers extends Board{
 
         boardPlacement();
         piecePlacementStart();
-        printBoard();
     }
 
 
@@ -168,6 +168,39 @@ public class Checkers extends Board{
         }
         message.append(":negative_squared_cross_mark::one::two::three::four::five::six::seven::eight::negative_squared_cross_mark:\n");
         return message.toString();
+    }
+
+    //might be best to add this to board as interface?
+    public String commands(String command){
+        command = command.replace("..pc ", "");
+
+        if(command.startsWith("move") && blnStarted){
+            return parseMessage(command);
+        }
+        else if(command.startsWith("move") && !blnStarted){
+            return "Checkers game is not started. Type '..pc new game' to get started";
+        }
+        else if(command == "new game"){
+            boardPlacement();
+            piecePlacementStart();
+            blnStarted = true;
+            return printBoard();
+        }
+        else if(command == "help"){
+            String strHelpMessage = "..pc------------------------------------------------------\n\n";
+            strHelpMessage += "--------move (coordinates of piece) (coordinates of where the piece will move to)\n";
+            strHelpMessage += "----------------------Moves piece from coordinates to that coordinates.\n";
+            strHelpMessage += "----------------------e.g. 'Move 1,1 2,2.\n";
+            strHelpMessage += "----------------------If jumping over piece the coordinates will be where the attacked piece is.\n";
+            strHelpMessage += "--------new game\n";
+            strHelpMessage += "----------------------Starts a new game.\n";
+            strHelpMessage += "----------------------Must start new game before moving pieces\n";
+            return strHelpMessage;
+        }
+        else{
+            return "No " + command + " command exist of that type. Type '..pc help' for more information about tBot Checkers.";
+        }
+
     }
 
 

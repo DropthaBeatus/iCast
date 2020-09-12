@@ -15,13 +15,16 @@ public class tBot {
 
     private static final Map<String, Command> commands = new HashMap<>();
     private static final Logger log = Loggers.getLogger(tBot.class);
+    //Factory Object Creation: Maybe want to create an array of Board instead of several Objs
+    private static Checkers gameCheckers = new Checkers();
 
+    private static final String strHelpMessage = "Type '..' to access various board games.\nType ..help to get commands";
 
 
 
     public static void main(String args[]){
         final String token = args[0];
-        Checkers game = new Checkers();
+
         BasicConfigurator.configure();
 
         final DiscordClient client = new DiscordClientBuilder(token).build();
@@ -38,40 +41,40 @@ public class tBot {
                             break;
                         }
                         //can create game master thing here for game management
-                        if(content.equals("Play Checkers")){
+                        if(content.startsWith(".." + entry.getKey())){
                             event.getMessage()
                                     .getChannel().block()
-                                    .createMessage(game.printBoard()).block();
-                            break;
+                                    .createMessage(eventExecute(content)).block();
 
-                        }
-                        if(content.startsWith("Move")){
-                            //Need to have an args check here
-                            event.getMessage()
-                                    .getChannel().block()
-                                    .createMessage(game.parseMessage(content)).block();
                             break;
 
                         }
 
                     }
                 });
-
-
         client.login().block();
-
-
-
     }
 
     static {
         commands.put("ping", event -> event.getMessage()
                 .getChannel().block()
                 .createMessage("Pong!").block());
-
-        commands.put("Play Checkers", event -> event.getMessage()
+        commands.put("help", event -> event.getMessage()
                 .getChannel().block()
-                .createMessage("Okay let's see what we can do.\nTest").block());
+                .createMessage(strHelpMessage).block());
+    }
+
+
+    private static String eventExecute(String content) {
+        if (content.startsWith("..pc")) {
+            return gameCheckers.commands(content);
+        }
+        else if (content.startsWith("..help")) {
+            return "Type ..pc to access checkers game";
+        }
+        else {
+            return "No commands " + content + "exist of that type. Type ..help for more commands";
+        }
     }
 
 

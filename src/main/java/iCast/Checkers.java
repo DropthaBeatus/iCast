@@ -15,6 +15,8 @@ public class Checkers extends Board{
     private static String black_block = ":black_large_square:";
     private boolean blnStarted = false;
 
+    private int[] prevPlacement = new int[4];
+    private boolean blnMoved = false;
    // private static int numBlackPiece = 0;
    // private static int numRedPiece = 0;
 
@@ -57,14 +59,19 @@ public class Checkers extends Board{
         }
     }
 
-    public String parseMessage(String Message){
+    private String parseMessage(String Message){
         int[] coords = Stream.of(Message.replaceAll("[^0-9]", "").split("")).mapToInt(Integer::parseInt).toArray();;
-        return makeTurn(coords[0] - 1, coords[1] - 1, coords[2] - 1, coords[3] - 1);
+        return makeTurn(coords[1] - 1, coords[0] - 1, coords[3] - 1, coords[2] - 1);
     }
 
 //This Section is here to check movement
     private String makeTurn(int a, int b, int i, int e){
         if(checkPieceMovement(a, b, i, e) && checkBoard(a, b, i, e)){
+            prevPlacement[0] = a; //y
+            prevPlacement[1] = b; //x
+            prevPlacement[2] = i;
+            prevPlacement[4] = e;
+            blnMoved = true;
             return printBoard();
         }
         return "Piece cannot move to specified location!";
@@ -93,6 +100,13 @@ public class Checkers extends Board{
         return false;
     }
 
+    //need to set more code here to revive destory piece
+    private void revertMove(){
+        movePiece(prevPlacement[0],prevPlacement[1],prevPlacement[2],prevPlacement[3]);
+        blnMoved = false;
+    }
+
+
     //BLACK KING IS -4
     //Black is going to move to 7
     //Red is going to move to 0
@@ -119,7 +133,7 @@ public class Checkers extends Board{
 
 //This section is here to move the actual pieces and king if y =0, or 7
 // need to check if this conflicts with base class!!!!
-    public void movePiece(int a, int b, int i, int e){
+    private void movePiece(int a, int b, int i, int e){
 
             pieces[i][e].piece = new String(pieces[a][b].piece);
             pieces[i][e].value = pieces[a][b].value;
@@ -140,11 +154,6 @@ public class Checkers extends Board{
 
 
     }
-
-
-
-
-
 
     private void monarchMe(Pieces piece, String Monarch){
         piece.piece = new String(Monarch);
@@ -180,19 +189,23 @@ public class Checkers extends Board{
         else if(command.startsWith("move") && !blnStarted){
             return "Checkers game is not started. Type '..pc new game' to get started";
         }
-        else if(command == "new game"){
+        else if(command.equals("new game")){
             boardPlacement();
             piecePlacementStart();
             blnStarted = true;
             return printBoard();
         }
-        else if(command == "help"){
-            String strHelpMessage = "..pc------------------------------------------------------\n\n";
-            strHelpMessage += "--------move (coordinates of piece) (coordinates of where the piece will move to)\n";
+        else if(command.equals("revert")){
+            revertMove();
+            return printBoard();
+        }
+        else if(command.equals("help")){
+            String strHelpMessage = "\n..pc------------------------------------------------------\n\n";
+            strHelpMessage += "--------'move' (coordinates of piece) (coordinates of where the piece will move to)\n";
             strHelpMessage += "----------------------Moves piece from coordinates to that coordinates.\n";
             strHelpMessage += "----------------------e.g. 'Move 1,1 2,2.\n";
             strHelpMessage += "----------------------If jumping over piece the coordinates will be where the attacked piece is.\n";
-            strHelpMessage += "--------new game\n";
+            strHelpMessage += "--------'new game'\n";
             strHelpMessage += "----------------------Starts a new game.\n";
             strHelpMessage += "----------------------Must start new game before moving pieces\n";
             return strHelpMessage;
